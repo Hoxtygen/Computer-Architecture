@@ -2,6 +2,7 @@
 
 import sys
 
+
 class CPU:
     """Main CPU class."""
 
@@ -16,10 +17,10 @@ class CPU:
         HLT = 0b00000001
         # set LDI to numeric value
         LDI = 0b10000010
-        # set tPRN to numeric value
+        # set PRN to numeric value
         PRN = 0b01000111
-
-        
+        # set MUL to numeric value
+        MUL = 0b10100010
 
     def ram_read(self, address):
         return self.ram[address]
@@ -31,22 +32,7 @@ class CPU:
         """Load a program into memory."""
 
         address = 0
-
-        # For now, we've just hardcoded a program:
-
-       """  program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1 """
+       
         try:
             with open(sys.argv[1]) as p:
                 for line in p:
@@ -78,8 +64,8 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
-            #self.fl,
-            #self.ie,
+            # self.fl,
+            # self.ie,
             self.ram_read(self.pc),
             self.ram_read(self.pc + 1),
             self.ram_read(self.pc + 2)
@@ -92,7 +78,12 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        # state (running)
+       
+        LDI = 0b10000010
+        PRN = 0b01000111
+        HLT = 0b00000001
+        MUL = 0b10100010
+
         running = True
         while running:
             instruction_register = self.ram[self.pc]
@@ -105,6 +96,9 @@ class CPU:
             elif instruction_register == PRN:
                 print(self.register[operand_a])
                 self.pc += 2
+            elif instruction_register == MUL:
+                self.alu("MUL", operand_a, operand_b)
+                self.pc +=3
             elif instruction_register == HLT:
                 running = False
             else:
