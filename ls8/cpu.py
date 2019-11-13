@@ -27,14 +27,14 @@ class CPU:
     def ram_write(self, address, value):
         self.ram[address] = value
 
-    def load(self):
+    def load(self, argv):
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
+       """  program = [
             # From print8.ls8
             0b10000010, # LDI R0,8
             0b00000000,
@@ -46,15 +46,27 @@ class CPU:
 
         for instruction in program:
             self.ram[address] = instruction
-            address += 1
+            address += 1 """
+        try:
+            with open(sys.argv[1]) as p:
+                for line in p:
+                    if line[0].startswith('0') or line[0].startswith('1'):
+                        val = line.split('#')[0].strip()
+                        self.ram[address] = int(val, 2)
+                        address += 1
+        except FileNotFoundError:
+            print(f"{sys.argv[0]}: {sys.argv[1]} Not found")
+            sys.exit(2)
+
 
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+            self.register[reg_a] += self.register[reg_b]
+        elif op == "MUL":
+            self.register[reg_a] *= self.register[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
