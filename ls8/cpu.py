@@ -9,6 +9,17 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.register = [0] * 8
+        self.pc = 0
+
+        # Store the numeric values of opcodes
+        # set  HLT to numeric value
+        HLT = 0b00000001
+        # set LDI to numeric value
+        LDI = 0b10000010
+        # set tPRN to numeric value
+        PRN = 0b01000111
+
+        
 
     def ram_read(self, address):
         return self.ram[address]
@@ -69,4 +80,23 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        # state (running)
+        running = True
+        while running:
+            instruction_register = self.ram[self.pc]
+            operand_a = self.ram_read(instruction_register + 1)
+            operand_b = self.ram_read(instruction_register + 2)
+
+            if instruction_register == LDI:
+                self.register[operand_a] = operand_b
+                self.pc += 3
+            elif instruction_register == PRN:
+                print(self.register[operand_a])
+                self.pc += 2
+            elif instruction_register == HLT:
+                running = False
+            else:
+                print(f"Unknown instruction!!{self.ram[self.pc]} ")
+                sys.exit(1)
+
+      
