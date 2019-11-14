@@ -8,6 +8,9 @@ HLT = 0b00000001
 MUL = 0b10100010
 POP = 0b01000110
 PUSH = 0b01000101
+CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
 
 class CPU:
     """Main CPU class."""
@@ -31,13 +34,17 @@ class CPU:
         self.sp = 7 # Stack pointer R7
 
         # set up branchtable
-        self.branchtable = {}
-        self.branchtable[LDI] = self.handle_ldi
-        self.branchtable[PRN] = self.handle_prn
-        self.branchtable[HLT] = self.handle_hlt
-        self.branchtable[MUL] = self.handle_mul
-        self.branchtable[PUSH] = self.handle_push
-        self.branchtable[POP] = self.handle_pop
+        self.branchtable = {
+            LDI:self.handle_ldi,
+            PRN: self.handle_prn,
+            HLT: self.handle_hlt,
+            MUL: self.handle_mul,
+            PUSH: self.handle_push,
+            POP: self.handle_pop,
+            CALL: self.handle_call,
+            ADD: self.handle_add,
+            RET: self.handle_ret
+        }
 
     
     def handle_hlt(self, a, b):
@@ -70,6 +77,22 @@ class CPU:
         self.register[self.sp] -= 1
         self.ram[self.register[self.sp]] = val
         self.pc += 2
+
+
+    def handle_call(self, a, b):
+        self.register[self.sp] -= 1
+        self.ram[self.register[self.sp]] = self.pc + 2
+
+        self.pc = self.register[a]
+
+    def handle_ret(self, a, b):
+        self.pc = self.ram[self.register[self.sp]]
+        self.register[self.sp] += 1
+
+    #  ADD
+    def handle_add(self, a, b):
+        self.alu("ADD", a, b)
+        self.pc += 3
 
     def load(self, filename):
         """Load a program into memory."""
